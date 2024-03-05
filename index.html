@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counter</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    padding-top: 60px;
+    background-color: #f4f4f4;
+  }
+  .counter {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .counter-container {
+    text-align: center;
+  }
+  .counter-name {
+    flex-grow: 1;
+    text-align: center;
+  }
+  .counter-value {
+    font-size: 1.5em;
+  }
+  .btn {
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 1.2em;
+  }
+  #addCounterBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 2em;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="addCounterBtn">+</div>
+
+<script>
+  class Counter {
+    constructor(name) {
+      this.name = name;
+      this.value = 0;
+    }
+  }
+
+  let counters = JSON.parse(localStorage.getItem('counters')) || [];
+  let pressTimer;
+
+  function renderCounters() {
+    document.body.innerHTML = '<div id="addCounterBtn">+</div>';
+    const addButton = document.getElementById('addCounterBtn');
+    addButton.addEventListener('click', addCounter);
+
+    counters.forEach((counter, index) => {
+      const counterElement = document.createElement('div');
+      counterElement.className = 'counter';
+      counterElement.innerHTML = `
+        <button class="btn" onclick="changeCounterValue(${index}, -1)">-</button>
+        <div class="counter-container">
+          <div class="counter-name">${counter.name}</div>
+          <div class="counter-value" id="value-${index}">${counter.value}</div>
+        </div>
+        <button class="btn" onclick="changeCounterValue(${index}, 1)">+</button>
+      `;
+
+      // Event listeners for touch/click start and end
+      counterElement.addEventListener('mousedown', () => startPress(index));
+      counterElement.addEventListener('mouseup', stopPress);
+      counterElement.addEventListener('mouseleave', stopPress); // Cancel on mouse leave
+      counterElement.addEventListener('touchstart', () => startPress(index));
+      counterElement.addEventListener('touchend', stopPress);
+
+      document.body.appendChild(counterElement);
+    });
+  }
+
+  function addCounter() {
+    const name = prompt('Enter the new counter name:');
+    if (name) {
+      counters.push(new Counter(name));
+      updateLocalStorage();
+      renderCounters();
+    }
+  }
+
+  function changeCounterValue(index, delta) {
+    counters[index].value += delta;
+    document.getElementById(`value-${index}`).innerText = counters[index].value;
+    updateLocalStorage();
+  }
+
+
+  function startPress(index) {
+    pressTimer = window.setTimeout(() => deleteCounter(index), 1000); // Long press time threshold
+  }
+
+  function stopPress() {
+    clearTimeout(pressTimer);
+  }
+
+  function deleteCounter(index) {
+    if (confirm('Do you want to delete this counter?')) {
+      counters.splice(index, 1);
+      updateLocalStorage();
+      renderCounters();
+    }
+  }
+
+  function updateLocalStorage() {
+    localStorage.setItem('counters', JSON.stringify(counters));
+  }
+
+  renderCounters();
+</script>
+</body>
+</html>
