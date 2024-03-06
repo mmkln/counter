@@ -157,7 +157,7 @@
     function startPress(index, event) {
       if (event.target.classList.contains('btn')) return;
       counterElement.classList.add('long-press');
-      pressTimer = window.setTimeout(() => deleteCounter(index, counterElement), 1000); // Long press time threshold
+      pressTimer = window.setTimeout(() => deleteCounter(index, counterElement), 300); // Long press time threshold
     }
 
     function stopPress() {
