@@ -117,7 +117,8 @@
     pressTimer = window.setTimeout(() => deleteCounter(index), 1000); // Long press time threshold
   }
 
-  function stopPress() {
+  function stopPress(event) {
+    event.preventDefault();
     clearTimeout(pressTimer);
   }
 
