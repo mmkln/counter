@@ -61,7 +61,7 @@
     padding: 5px 10px;
     cursor: pointer;
     border: none;
-    background-color: unset;
+    background: unset;
     transition: color 0.3s, transform 0.2s; /* Smooth transitions for feedback */
     color: #fff;
     font-size: 4rem;
@@ -75,10 +75,10 @@
     color: #a5c7f2;
   }
 
-  .btn:active {
+  /* .btn:active {
     color: #5594e1;
     transform: translateY(2px);
-  }
+  } */
 
   #addCounterBtn {
     position: fixed;
@@ -155,11 +155,14 @@
     counterElement.addEventListener('touchend', () => stopPress());
 
     function startPress(index, event) {
+      if (event.target.classList.contains('btn')) return;
+      counterElement.classList.add('long-press');
       pressTimer = window.setTimeout(() => deleteCounter(index), 1000); // Long press time threshold
     }
 
     function stopPress() {
       clearTimeout(pressTimer);
+      counterElement.classList.remove('long-press'); // Remove visual cue if necessary
     }
   }
 
