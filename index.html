@@ -2,49 +2,84 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Counter</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    padding-top: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 80px 20px 20px;
     background-color: #f4f4f4;
+    color: #333;
   }
+
   .counter {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 15px;
-    padding: 10px;
+    background-color: #2f81e5;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 16px; 
+    padding: 14px 10px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: box-shadow 0.3s ease;
+    color: #fff;
   }
-  .counter:active {
-    background-color: #e7e7e7;
+
+  .counter:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   }
+
+  .counter.long-press {
+    background-color: #2566b6; /* Different background to indicate long press */
+  }
+
   .counter-container {
     text-align: center;
   }
+
   .counter-name {
     flex-grow: 1;
     text-align: center;
+    font-size: 1.3rem;
+    margin: 0 10px; 
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
   }
+
   .counter-value {
-    font-size: 1.5em;
+    font-size: 2.5rem;
+    font-weight: bold;
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
   }
+
   .btn {
-    cursor: pointer;
     padding: 5px 10px;
-    font-size: 1.2em;
+    cursor: pointer;
+    border: none;
+    background-color: unset;
+    transition: color 0.3s, transform 0.2s; /* Smooth transitions for feedback */
+    color: #fff;
+    font-size: 4rem;
+    font-weight: bold;
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
   }
+
+  .btn:hover {
+    color: #a5c7f2;
+  }
+
+  .btn:active {
+    color: #5594e1;
+    transform: translateY(2px);
+  }
+
   #addCounterBtn {
     position: fixed;
     top: 20px;
@@ -67,7 +102,6 @@
   }
 
   let counters = JSON.parse(localStorage.getItem('counters')) || [];
-  let pressTimer;
 
   function renderCounters() {
     document.body.innerHTML = '<div id="addCounterBtn">+</div>';
@@ -78,23 +112,55 @@
       const counterElement = document.createElement('div');
       counterElement.className = 'counter';
       counterElement.innerHTML = `
-        <button class="btn" onclick="changeCounterValue(${index}, -1)">-</button>
+        <button class="btn" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</button>
         <div class="counter-container">
-          <div class="counter-name">${counter.name}</div>
+          <div class="counter-name" id="name-${index}">${counter.name}</div>
           <div class="counter-value" id="value-${index}">${counter.value}</div>
         </div>
-        <button class="btn" onclick="changeCounterValue(${index}, 1)">+</button>
+        <button class="btn" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</button>
       `;
 
-      // Event listeners for touch/click start and end
-      counterElement.addEventListener('mousedown', () => startPress(index));
-      counterElement.addEventListener('mouseup', stopPress);
-      counterElement.addEventListener('mouseleave', stopPress); // Cancel on mouse leave
-      counterElement.addEventListener('touchstart', () => startPress(index));
-      counterElement.addEventListener('touchend', stopPress);
+      // Setup for detecting long presses on the counter, excluding button presses
+      setupLongPressDetection(counterElement, index);
+      setupDoubleClickForTitleUpdate(counterElement, index);
 
       document.body.appendChild(counterElement);
     });
+  }
+
+  function setupDoubleClickForTitleUpdate(element, index) {
+    element.addEventListener('dblclick', (event) => {
+      // Prevent triggering dblclick on buttons
+      if (event.target.classList.contains('btn')) return;
+      
+      // Fetch the current name of the counter to show in the prompt
+      const currentName = counters[index].name;
+      const newName = prompt('Enter a new name for this counter:', currentName); // Include currentName as the default value in the prompt
+      
+      if (newName !== null && newName.trim() !== '') {
+        counters[index].name = newName.trim();
+        document.getElementById(`name-${index}`).textContent = newName;
+        updateLocalStorage();
+        renderCounters(); // Re-render the counters to reflect the updated name
+      }
+    });
+  }
+
+  function setupLongPressDetection(counterElement, index) {
+    let pressTimer;
+    counterElement.addEventListener('mousedown', (e) => startPress(index, e));
+    counterElement.addEventListener('mouseup', () => stopPress());
+    counterElement.addEventListener('mouseleave', () => stopPress()); // Cancel on mouse leave
+    counterElement.addEventListener('touchstart', (e) => startPress(index, e));
+    counterElement.addEventListener('touchend', () => stopPress());
+
+    function startPress(index, event) {
+      pressTimer = window.setTimeout(() => deleteCounter(index), 1000); // Long press time threshold
+    }
+
+    function stopPress() {
+      clearTimeout(pressTimer);
+    }
   }
 
   function addCounter() {
@@ -110,16 +176,6 @@
     counters[index].value += delta;
     document.getElementById(`value-${index}`).innerText = counters[index].value;
     updateLocalStorage();
-  }
-
-
-  function startPress(index) {
-    pressTimer = window.setTimeout(() => deleteCounter(index), 1000); // Long press time threshold
-  }
-
-  function stopPress(event) {
-    event.preventDefault();
-    clearTimeout(pressTimer);
   }
 
   function deleteCounter(index) {
