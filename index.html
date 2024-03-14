@@ -61,7 +61,7 @@
     width: 100%;
     height: 100vh;
 
-    background-image: var(--background-image-ur);
+    background-image: var('assets/image-bg-light.png');
     background-color: #f4f4f4;
     background-position: center;
     background-size: cover;
@@ -98,9 +98,6 @@
   }
 
   .counter {
-    /* display: flex; */
-    /* justify-content: space-between; */
-    /* min-width: 342px; */
     position: relative;
     border: none;
     color: var(--color-text);
@@ -115,8 +112,6 @@
   }
 
   .counter:hover {
-    /* display: flex; */
-    /* justify-content: space-between; */
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   }
 
@@ -331,7 +326,7 @@
           <div class="counter-content">
             <div class="button" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</div>
             <div class="divider"></div>
-            <div class="counter-container" ondblclick="changeCounterTitle(${index})">
+            <div class="counter-container" id="counter-container-${index}" ondblclick="changeCounterTitle(${index})">
               <div class="counter-name" id="name-${index}">${counter.name}</div>
               <div class="counter-value" id="value-${index}">${counter.value}</div>
             </div>
@@ -343,14 +338,14 @@
       `;
 
       containerElement.appendChild(counterElement);
-      // counterElement.addEventListener('touchstart', handleTouchStart, false);
-      // counterElement.addEventListener('touchmove', handleTouchMove, false);
-      counterElement.addEventListener('touchstart', handleStart, false);
-      counterElement.addEventListener('touchmove', handleMove, false);
-      counterElement.addEventListener('mousedown', handleStart, false);
-      counterElement.addEventListener('mousemove', handleMove, false);
-      counterElement.addEventListener('mouseup', endSwipe, false);
-      counterElement.addEventListener('mouseleave', endSwipe, false); 
+
+      const counterContainerElement = document.getElementById(`counter-container-${index}`);
+      counterContainerElement.addEventListener('touchstart', handleStart, false);
+      counterContainerElement.addEventListener('touchmove', handleMove, false);
+      counterContainerElement.addEventListener('mousedown', handleStart, false);
+      counterContainerElement.addEventListener('mousemove', handleMove, false);
+      counterContainerElement.addEventListener('mouseup', endSwipe, false);
+      counterContainerElement.addEventListener('mouseleave', endSwipe, false); 
     });
   }
 
@@ -362,21 +357,6 @@
     isSwiping = true; // Start swiping
     x1 = e.touches ? e.touches[0].clientX : e.clientX; // Set initial x position
   }
-
-  // function handleMove(e) {
-  //   if (!isSwiping || !x1) {
-  //     return;
-  //   }
-
-  //   let x2 = e.touches ? e.touches[0].clientX : e.clientX;
-  //   let xDiff = x2 - x1;
-
-  //   // Swipe left
-  //   if (xDiff < 0) {
-  //     e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
-  //   }
-  //   // Consider adding logic for swipe right if needed
-  // }
 
   function handleMove(e) {
     if (!isSwiping || !x1) {
@@ -394,71 +374,9 @@
     }
   }
 
-  // function handleMove(e) {
-  //   if (!isSwiping || x1 === null) {
-  //     return;
-  //   }
-
-  //   let currentX = e.touches ? e.touches[0].clientX : e.clientX;
-  //   let xDiff = currentX - x1;
-
-  //   // Consider swipe left for deletion
-  //   if (xDiff < 0 && Math.abs(xDiff) > 150) { // 150px threshold for a long swipe
-  //     // Trigger delete action
-  //     const counterElement = e.target.closest('.counter');
-  //     const index = Array.from(counterElement.parentNode.children).indexOf(counterElement); // Assuming each counter is a direct child
-  //     deleteCounter(index, counterElement);
-  //     isSwiping = false; // Reset swiping to prevent further processing
-  //     return; // Exit the function after deletion to prevent further logic from executing
-  //   }
-  // }
-
   function endSwipe(e) {
     isSwiping = false; // Reset swiping status
     x1 = null; // Reset initial x position
-  }
-
-  // function handleTouchStart(e) {
-  //   const firstTouch = e.touches[0];
-  //   x1 = firstTouch.clientX;
-  // }
-
-  // function handleTouchMove(e) {
-  //   if (!x1) {
-  //     return;
-  //   }
-
-  //   let x2 = e.touches[0].clientX;
-  //   let xDiff = x2 - x1;
-
-  //   // Swipe left
-  //   if (xDiff < 0) {
-  //     // Add swiped-left class to the .counter-swipe element inside counterElement
-  //     e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
-  //   }
-
-  //   // Reset values
-  //   x1 = null;
-  // }
-
-  function setupLongPressDetection(counterElement, index) {
-    let pressTimer;
-    counterElement.addEventListener('mousedown', (e) => startPress(index, e));
-    counterElement.addEventListener('mouseup', () => stopPress());
-    counterElement.addEventListener('mouseleave', () => stopPress()); // Cancel on mouse leave
-    counterElement.addEventListener('touchstart', (e) => startPress(index, e));
-    counterElement.addEventListener('touchend', () => stopPress());
-
-    function startPress(index, event) {
-      if (event.target.classList.contains('btn')) return;
-      counterElement.classList.add('long-press');
-      pressTimer = window.setTimeout(() => deleteCounter(index, counterElement), 300); // Long press time threshold
-    }
-
-    function stopPress() {
-      clearTimeout(pressTimer);
-      counterElement.classList.remove('long-press'); 
-    }
   }
 
   function addCounter() {
