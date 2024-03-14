@@ -367,7 +367,7 @@
     let xDiff = currentX - x1;
 
     // Determine the swipe direction
-    if (xDiff < -30) { // Swipe left
+    if (xDiff < -50) { // Swipe left
       e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
     }else if (xDiff > 0) { // Swipe right
       e.target.closest('.counter').querySelector('.counter-swipe').classList.remove('swiped-left');
