@@ -365,7 +365,7 @@
 
     let currentX = e.touches ? e.touches[0].clientX : e.clientX;
     let xDiff = currentX - x1;
-console.log({xDiff})
+
     // Determine the swipe direction
     if (xDiff < -30) { // Swipe left
       e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
