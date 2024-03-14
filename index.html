@@ -66,6 +66,8 @@
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+
+    z-index: -10;
   }
 
   body[data-theme="dark"] > #bg {
@@ -96,8 +98,32 @@
   }
 
   .counter {
+    /* display: flex; */
+    /* justify-content: space-between; */
+    /* min-width: 342px; */
+    position: relative;
+    border: none;
+    color: var(--color-text);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .counter-swipe {
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+
+  .counter:hover {
+    /* display: flex; */
+    /* justify-content: space-between; */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .counter-content {
     display: flex;
     justify-content: space-between;
+    width: 100%;
     min-width: 342px;
     border: none;
     border-bottom: solid 1px var(--color-tetriary);
@@ -109,7 +135,7 @@
     overflow: hidden;
   }
 
-  .counter:hover {
+  .counter-content:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   }
 
@@ -177,6 +203,30 @@
     background-color: var(--color-tetriary);
   }
 
+  .delete-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-danger);
+    border-radius: 16px;
+    color: white;
+    width: 80px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: -1;
+  }
+
+  .swiped-left {
+    transform: translateX(-90px); /* Matches the delete button width */
+  }
+
+  .swiped-left-double {
+    transform: translateX(-200px); /* Matches the delete button width */
+  }
+
   #addCounterBtn {
     position: fixed;
     bottom: 20px;
@@ -199,7 +249,7 @@
     background-color: var(--color-gray);
   }
 
-  @media screen and (min-width: 768px){
+  @media screen and (min-width: 768px) {
     .button:hover {
       /* color: #a5c7f2; */
       background-color: var(--color-secondary);
@@ -212,7 +262,7 @@
       font-size: 20px;
     }
     .container {
-      padding: 20px 12px 90px;
+      padding: 20px 12px 100px;
       gap: 12px
     }
     #addCounterBtn {
@@ -277,22 +327,119 @@
       const counterElement = document.createElement('div');
       counterElement.className = 'counter';
       counterElement.innerHTML = `
-        <div class="button" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</div>
-        <div class="divider"></div>
-        <div class="counter-container" ondblclick="changeCounterTitle(${index})">
-          <div class="counter-name" id="name-${index}">${counter.name}</div>
-          <div class="counter-value" id="value-${index}">${counter.value}</div>
+        <div class="counter-swipe">
+          <div class="counter-content">
+            <div class="button" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</div>
+            <div class="divider"></div>
+            <div class="counter-container" ondblclick="changeCounterTitle(${index})">
+              <div class="counter-name" id="name-${index}">${counter.name}</div>
+              <div class="counter-value" id="value-${index}">${counter.value}</div>
+            </div>
+            <div class="divider"></div>
+            <div class="button" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</div>
+          </div>
         </div>
-        <div class="divider"></div>
-        <div class="button" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</div>
+        <div class="delete-btn" onclick="deleteCounter(${index}, this.parentElement.parentElement)">Delete</div>
       `;
 
-      // Setup for detecting long presses on the counter, excluding button presses
-      // setupLongPressDetection(counterElement, index);
-
       containerElement.appendChild(counterElement);
+      // counterElement.addEventListener('touchstart', handleTouchStart, false);
+      // counterElement.addEventListener('touchmove', handleTouchMove, false);
+      counterElement.addEventListener('touchstart', handleStart, false);
+      counterElement.addEventListener('touchmove', handleMove, false);
+      counterElement.addEventListener('mousedown', handleStart, false);
+      counterElement.addEventListener('mousemove', handleMove, false);
+      counterElement.addEventListener('mouseup', endSwipe, false);
+      counterElement.addEventListener('mouseleave', endSwipe, false); 
     });
   }
+
+  let isSwiping = false; // Track if a swipe gesture is in progress
+  let x1 = null;
+
+  function handleStart(e) {
+    e.preventDefault(); // Prevent default action (optional, use if needed)
+    isSwiping = true; // Start swiping
+    x1 = e.touches ? e.touches[0].clientX : e.clientX; // Set initial x position
+  }
+
+  // function handleMove(e) {
+  //   if (!isSwiping || !x1) {
+  //     return;
+  //   }
+
+  //   let x2 = e.touches ? e.touches[0].clientX : e.clientX;
+  //   let xDiff = x2 - x1;
+
+  //   // Swipe left
+  //   if (xDiff < 0) {
+  //     e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
+  //   }
+  //   // Consider adding logic for swipe right if needed
+  // }
+
+  function handleMove(e) {
+    if (!isSwiping || !x1) {
+      return;
+    }
+
+    let currentX = e.touches ? e.touches[0].clientX : e.clientX;
+    let xDiff = currentX - x1;
+
+    // Determine the swipe direction
+    if (xDiff < 0) { // Swipe left
+      e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
+    }else if (xDiff > 0) { // Swipe right
+      e.target.closest('.counter').querySelector('.counter-swipe').classList.remove('swiped-left');
+    }
+  }
+
+  // function handleMove(e) {
+  //   if (!isSwiping || x1 === null) {
+  //     return;
+  //   }
+
+  //   let currentX = e.touches ? e.touches[0].clientX : e.clientX;
+  //   let xDiff = currentX - x1;
+
+  //   // Consider swipe left for deletion
+  //   if (xDiff < 0 && Math.abs(xDiff) > 150) { // 150px threshold for a long swipe
+  //     // Trigger delete action
+  //     const counterElement = e.target.closest('.counter');
+  //     const index = Array.from(counterElement.parentNode.children).indexOf(counterElement); // Assuming each counter is a direct child
+  //     deleteCounter(index, counterElement);
+  //     isSwiping = false; // Reset swiping to prevent further processing
+  //     return; // Exit the function after deletion to prevent further logic from executing
+  //   }
+  // }
+
+  function endSwipe(e) {
+    isSwiping = false; // Reset swiping status
+    x1 = null; // Reset initial x position
+  }
+
+  // function handleTouchStart(e) {
+  //   const firstTouch = e.touches[0];
+  //   x1 = firstTouch.clientX;
+  // }
+
+  // function handleTouchMove(e) {
+  //   if (!x1) {
+  //     return;
+  //   }
+
+  //   let x2 = e.touches[0].clientX;
+  //   let xDiff = x2 - x1;
+
+  //   // Swipe left
+  //   if (xDiff < 0) {
+  //     // Add swiped-left class to the .counter-swipe element inside counterElement
+  //     e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
+  //   }
+
+  //   // Reset values
+  //   x1 = null;
+  // }
 
   function setupLongPressDetection(counterElement, index) {
     let pressTimer;
@@ -315,7 +462,7 @@
   }
 
   function addCounter() {
-    const name = prompt('Enter the new counter name:');
+    const name = prompt('Enter counter title:');
     if (name) {
       counters.push(new Counter(name));
       updateLocalStorage();
@@ -332,7 +479,7 @@
   function changeCounterTitle(index) {
       // Fetch the current name of the counter to show in the prompt
       const currentName = counters[index]?.name;
-      const newName = prompt('Enter a new name for this counter:', currentName); // Include currentName as the default value in the prompt
+      const newName = prompt('Enter counter title:', currentName); // Include currentName as the default value in the prompt
       
       if (newName !== null && newName.trim() !== '') {
         counters[index].name = newName.trim();
@@ -344,7 +491,7 @@
 
   function deleteCounter(index, counterElement) {
     counterElement.classList.remove('long-press'); 
-    if (confirm('Do you want to delete this counter?')) {
+    if (confirm('Delete this counter?')) {
       counters.splice(index, 1);
       updateLocalStorage();
       renderCounters();
