@@ -353,7 +353,7 @@
   let x1 = null;
 
   function handleStart(e) {
-    e.preventDefault(); // Prevent default action (optional, use if needed)
+    // e.preventDefault(); // Prevent default action (optional, use if needed)
     isSwiping = true; // Start swiping
     x1 = e.touches ? e.touches[0].clientX : e.clientX; // Set initial x position
   }
@@ -367,7 +367,7 @@
     let xDiff = currentX - x1;
 
     // Determine the swipe direction
-    if (xDiff < 0) { // Swipe left
+    if (xDiff < 100) { // Swipe left
       e.target.closest('.counter').querySelector('.counter-swipe').classList.add('swiped-left');
     }else if (xDiff > 0) { // Swipe right
       e.target.closest('.counter').querySelector('.counter-swipe').classList.remove('swiped-left');
