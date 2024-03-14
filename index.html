@@ -109,6 +109,7 @@
     overflow: hidden;
     position: relative;
     transition: transform 0.3s ease;
+    z-index: 10;
   }
 
   .counter:hover {
@@ -211,7 +212,6 @@
     right: 0;
     top: 0;
     cursor: pointer;
-    z-index: -1;
   }
 
   .swiped-left {
@@ -334,7 +334,7 @@
             <div class="button" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</div>
           </div>
         </div>
-        <div class="delete-btn" onclick="deleteCounter(${index}, this.parentElement.parentElement)">Delete</div>
+        <div class="delete-btn" onclick="deleteCounter(${index})">Delete</div>
       `;
 
       containerElement.appendChild(counterElement);
@@ -407,14 +407,14 @@
       }
   }
 
-  function deleteCounter(index, counterElement) {
-    counterElement.classList.remove('long-press'); 
-    if (confirm('Delete this counter?')) {
-      counters.splice(index, 1);
-      updateLocalStorage();
-      renderCounters();
-    }
+  function deleteCounter(index) {
+  // Confirm before deletion, or remove this if unnecessary
+  if (confirm('Delete this counter?')) {
+    counters.splice(index, 1);
+    updateLocalStorage(); 
+    renderCounters();
   }
+}
 
   function updateLocalStorage() {
     localStorage.setItem('counters', JSON.stringify(counters));
