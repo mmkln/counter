@@ -5,38 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Counter</title>
 <style>
+  :root  {
+    --color-primary: #2f81e5;
+    --color-secondary: #296DC0;
+    --color-tetriary: #225EA8;
+    --color-danger: #EB2828;
+    --color-gray: #CEE1FC;
+    --color-gray-transparent: #cee1fc80;
+    --color-gray-transparent-2: #cee1fc99;
+    --color-text: #fff;
+    --color-text-invert: #1A1A1A;
+  }
+  
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    padding: 0;
     margin: 0;
-    padding: 80px 20px 20px;
-    background-color: #f4f4f4;
+
+    font-family: Inter, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
   }
 
-  .counter {
-    background-color: #2f81e5;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-radius: 16px; 
-    padding: 14px 10px;
-    margin-bottom: 20px;
+  body[data-theme="dark"] {
+    /*
+    * redefine the variables for the Dark theme
+    */
+    --color-primary: #22599C;
+    --color-secondary: #2B6BB8;
+    --color-tetriary: #3278CE;
+    --color-danger: #CC1919;
+    --color-gray: #24282E;
+    --color-gray-transparent: #24282E80;
+    --color-gray-transparent-2: #24282E99;
+    --color-text: #102C4F;
+    --color-text-invert: #646464;
+  }
+
+  body[data-theme="light"] {
+    /*
+    * redefine the variables for the Light theme
+    */
+    --color-primary: #2f81e5;
+    --color-secondary: #296DC0;
+    --color-tetriary: #225EA8;
+    --color-danger: #EB2828;
+    --color-gray: #CEE1FC;
+    --color-gray-transparent: #cee1fc80;
+    --color-gray-transparent-2: #cee1fc99;
+    --color-text: #fff;
+    --color-text-invert: #1A1A1A;
+  }
+
+  #bg {
+    position:fixed;
+    width: 100%;
+    height: 100vh;
+
+    background-image: var(--background-image-ur);
+    background-color: #f4f4f4;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  body[data-theme="dark"] > #bg {
+    background-image: url('assets/image-bg-dark.png');
+  }
+
+  body[data-theme="light"] > #bg {
+    background-image: url('assets/image-bg-light.png');
+  }
+
+  #header {
+    font-size: 24px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--color-text-invert);
+    /* filter: invert(1); */
+  }
+
+  .container {
+    position: relative;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 20px 100px;
+  }
+
+  .counter {
+    display: flex;
     justify-content: space-between;
+    min-width: 342px;
+    border: none;
+    border-bottom: solid 1px var(--color-tetriary);
+    border-radius: 16px;
+    background-color: var(--color-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: var(--color-text);
     transition: box-shadow 0.3s ease;
-    color: #fff;
+    overflow: hidden;
   }
 
   .counter:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   }
 
-  .counter.long-press {
-    background-color: #2566b6; /* Different background to indicate long press */
-  }
+  /* Different background to indicate long press */
+  /* .counter.long-press {
+    background-color: #2566b6;
+  } */
 
   .counter-container {
-    text-align: center;
+    flex-grow: 1;
+    width: 50%;
+    min-width: 180px;
+    max-width: 400px;
+    padding: 14px;
+    text-align: center;  
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .counter-name {
@@ -50,49 +140,110 @@
   }
 
   .counter-value {
-    font-size: 2.5rem;
+    font-size: 2.4rem;
     font-weight: bold;
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
   }
 
-  .btn {
-    padding: 5px 10px;
+  .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding: 14px;  
+    min-width: 50px;
     cursor: pointer;
     border: none;
     background: unset;
-    transition: color 0.3s, transform 0.2s; /* Smooth transitions for feedback */
-    color: #fff;
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: bold;
+    color: var(--color-text);
+    transition: color 0.3s, transform 0.2s; /* Smooth transitions for feedback */
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
     user-select: none; /* Standard syntax */
   }
 
-  .btn:hover {
-    color: #a5c7f2;
+  .button:hover {
+    /* color: #a5c7f2; */
+    background-color: var(--color-secondary);
   }
 
-  /* .btn:active {
-    color: #5594e1;
-    transform: translateY(2px);
-  } */
+  .button:active {
+    /* color: #5594e1; */
+    background-color: var(--color-tetriary);
+    /* transform: translateY(1px); */
+  }
+
+  .divider {
+    width: 1px;
+    background-color: var(--color-tetriary);
+  }
 
   #addCounterBtn {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    font-size: 2em;
+    bottom: 20px;
+    width: calc(100% - 40px);
+    max-width: 800px;
+    padding: 16px 0;
+    border-radius: 16px;
+    backdrop-filter: blur(100px);
+    background-color: var(--color-gray-transparent);
+    text-align: center;
     cursor: pointer;
+    color: var(--color-secondary);
+  }
+
+  #addCounterBtn:hover {
+    background-color: var(--color-gray-transparent-2);
+  }
+
+  #addCounterBtn:active {
+    background-color: var(--color-gray);
+  }
+
+  @media screen and (max-width: 768px) {
+    /* Mobile-specific styles go here */
+    #header {
+      font-size: 20px;
+    }
+    .container {
+      padding: 20px 12px 90px;
+      gap: 12px
+    }
+    #addCounterBtn {
+      width: calc(100% - 24px);
+    }
+    .button {
+      padding: 10px;
+      font-size: 2.5rem;
+    }
+    .counter-container {
+      padding: 10px;
+    }
+    .counter-name {
+      font-size: 1.2rem;
+      margin: 0 10px; 
+    }
+    .counter-value {
+      font-size: 2.3rem;
+    }
+  }
+
+  @media screen and (max-width: 368px) {
+    /* Mobile-specific styles go here */
+    .counter-name {
+      font-size: 1.1rem;
+    }
+    .counter-value {
+      font-size: 2rem;
+    }
   }
 </style>
 </head>
 <body>
-
-<div id="addCounterBtn">+</div>
-
 <script>
   class Counter {
     constructor(name) {
@@ -104,45 +255,40 @@
   let counters = JSON.parse(localStorage.getItem('counters')) || [];
 
   function renderCounters() {
-    document.body.innerHTML = '<div id="addCounterBtn">+</div>';
-    const addButton = document.getElementById('addCounterBtn');
-    addButton.addEventListener('click', addCounter);
+    document.body.innerHTML = `
+      <div id="bg"></div>
+      <div id="container" class="container">
+        <div id="header">Counters</div>
+        <div id="addCounterBtn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 12H19" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    `;
+    const addButtonElement = document.getElementById('addCounterBtn');
+    const containerElement = document.getElementById('container');
+    addButtonElement.addEventListener('click', addCounter);
 
     counters.forEach((counter, index) => {
       const counterElement = document.createElement('div');
       counterElement.className = 'counter';
       counterElement.innerHTML = `
-        <button class="btn" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</button>
-        <div class="counter-container">
+        <div class="button" onclick="changeCounterValue(${index}, -1); event.stopPropagation();">-</div>
+        <div class="divider"></div>
+        <div class="counter-container" ondblclick="changeCounterTitle(${index})">
           <div class="counter-name" id="name-${index}">${counter.name}</div>
           <div class="counter-value" id="value-${index}">${counter.value}</div>
         </div>
-        <button class="btn" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</button>
+        <div class="divider"></div>
+        <div class="button" onclick="changeCounterValue(${index}, 1); event.stopPropagation();">+</div>
       `;
 
       // Setup for detecting long presses on the counter, excluding button presses
-      setupLongPressDetection(counterElement, index);
-      setupDoubleClickForTitleUpdate(counterElement, index);
+      // setupLongPressDetection(counterElement, index);
 
-      document.body.appendChild(counterElement);
-    });
-  }
-
-  function setupDoubleClickForTitleUpdate(element, index) {
-    element.addEventListener('dblclick', (event) => {
-      // Prevent triggering dblclick on buttons
-      if (event.target.classList.contains('btn')) return;
-      
-      // Fetch the current name of the counter to show in the prompt
-      const currentName = counters[index].name;
-      const newName = prompt('Enter a new name for this counter:', currentName); // Include currentName as the default value in the prompt
-      
-      if (newName !== null && newName.trim() !== '') {
-        counters[index].name = newName.trim();
-        document.getElementById(`name-${index}`).textContent = newName;
-        updateLocalStorage();
-        renderCounters(); // Re-render the counters to reflect the updated name
-      }
+      containerElement.appendChild(counterElement);
     });
   }
 
@@ -181,6 +327,19 @@
     updateLocalStorage();
   }
 
+  function changeCounterTitle(index) {
+      // Fetch the current name of the counter to show in the prompt
+      const currentName = counters[index]?.name;
+      const newName = prompt('Enter a new name for this counter:', currentName); // Include currentName as the default value in the prompt
+      
+      if (newName !== null && newName.trim() !== '') {
+        counters[index].name = newName.trim();
+        document.getElementById(`name-${index}`).textContent = newName;
+        updateLocalStorage();
+        renderCounters(); // Re-render the counters to reflect the updated name
+      }
+  }
+
   function deleteCounter(index, counterElement) {
     counterElement.classList.remove('long-press'); 
     if (confirm('Do you want to delete this counter?')) {
@@ -195,6 +354,31 @@
   }
 
   renderCounters();
+
+  /*
+  * Check if the user prefers a dark or a light theme
+  **/
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+
+  if (prefersDark) {
+    setupDarkTheme();
+  } else if (prefersLight) {
+    setupLightTheme();
+  } else {
+      console.log("Theme preference not detected");
+  }
+
+  function setupDarkTheme() {
+    const body = document.body;
+    body.setAttribute("data-theme", "dark");
+    // document.documentElement.style.setProperty('--primary-color', 'red');
+  }
+
+  function setupLightTheme() {
+    const body = document.body;
+    body.setAttribute("data-theme", "light");
+  }
 </script>
 </body>
 </html>
