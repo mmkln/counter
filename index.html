@@ -37,7 +37,7 @@
     --color-gray: #24282E;
     --color-gray-transparent: #24282E80;
     --color-gray-transparent-2: #24282E99;
-    --color-text: #102C4F;
+    --color-text: #0E2746;
     --color-text-invert: #646464;
   }
 
@@ -166,11 +166,6 @@
     user-select: none; /* Standard syntax */
   }
 
-  .button:hover {
-    /* color: #a5c7f2; */
-    background-color: var(--color-secondary);
-  }
-
   .button:active {
     /* color: #5594e1; */
     background-color: var(--color-tetriary);
@@ -202,6 +197,13 @@
 
   #addCounterBtn:active {
     background-color: var(--color-gray);
+  }
+
+  @media screen and (min-width: 768px){
+    .button:hover {
+      /* color: #a5c7f2; */
+      background-color: var(--color-secondary);
+    }
   }
 
   @media screen and (max-width: 768px) {
